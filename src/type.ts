@@ -8,22 +8,26 @@ export class Type<T extends RTType> {
 }
 
 export namespace Type {
+    export class Union<T extends RTType[]> extends Type<T> {
+        private readonly __union__ = true;
+        constructor(type: T) {
+            super(type)
+        }
+    }
+
     export type From<T> = (
-        T extends Type<infer V>
-        ? RTType.From<V>
+        T extends Union<infer V>
+        ? RTType.From<V>[number]
+        : T extends Type<infer R>
+        ? RTType.From<R>
         : unknown
     )
 }
 
 
-const strNumArr = new Type(["string","number"]);
 
-type StrNumArr = Type.From<typeof strNumArr> // (string|number)[]
+const union = new Type.Union(['string','number'])
+const strNumArr = new Type(['string','number']);
 
-const myInterface = new Type({
-    name : "string",
-    age : "number",
-    friends : [{name: "string", age: "number"}],
-})
-
-type MyInterface = Type.From<typeof myInterface>
+type Un = Type.From<typeof union>
+type StrNumArr = Type.From<typeof strNumArr>
