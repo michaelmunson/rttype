@@ -1,10 +1,10 @@
-export type RTType = (
-	RTType.Core | 
-	{[K:string] : RTType} | 
-	RTType[]
+export type RtType = (
+	RtType.Core | 
+	{[K:string] : RtType} | 
+	RtType[]
 )
 
-export namespace RTType {
+export namespace RtType {
 	/* Core Types */
 	export type Core<T = any> = (Core.Basic | Core.Prototype<T>)
 	export namespace Core {
@@ -28,30 +28,30 @@ export namespace RTType {
 				? object
 				: T extends "function"
 				? Function
-				: unknown
+				: T
 
-			export function isBaseType(data: any): data is Basic {
-				return types.includes(data);
+			export function isBasicType(data: any): data is Basic {
+				return [...types].includes(data);
 			}
 		}
-		export interface Prototype<T> extends Function { new(...args: any[]): T, prototype: T }
+		export interface Prototype<T, Args extends any[] = any[]> extends Function { new(...args: Args[]): T, prototype: T }
 		export type From<T> = (
 			T extends Basic
 			? Basic.Extract<T>
-			: T extends Prototype<infer Class>
+			: T extends Prototype<infer Class, infer Args>
 			? Class
-			: unknown
+			: T
 		)
 	}
 
 	export type From<T> = (
 		T extends Core
 		? Core.From<T>
-		: T extends RTType[]
-		? RTType.From<T[number]>[]
-		: T extends {[K:string] : RTType}
-		? {[K in keyof T] : RTType.From<T[K]>}
-		: unknown
+		: T extends RtType[]
+		? RtType.From<T[number]>[]
+		: T extends {[K:string] : RtType}
+		? {[K in keyof T] : RtType.From<T[K]>}
+		: T
 	)
 }
 
