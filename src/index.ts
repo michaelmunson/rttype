@@ -53,7 +53,9 @@ export class PostType<T extends PType<P, P>, P> {
 }
 
 export namespace PostType {
-    export class 
+    export class Optional {
+        
+    }
 }
 
 export type Infer<T> = (
