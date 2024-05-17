@@ -29,17 +29,21 @@ export interface Prototype<T, Args=any> extends Function { new(...args: Args[]):
 type Type<T> = (
     BaseType
     | Prototype<T>
+    | PostType<Type<T>>
     | (Type<T>)[]
     | {[key:string] : Type<T>}
 );
 
-type PType<T,P> = (
-    Type<T>
-    | PType<T,P>[]
-    | {[key:string] : PType<T,P>}
-)
+// type PType<T> = (
+//     Type<T> |
+//     PostType<PType<T>> |
+//     PType<T>[] | 
+//     {[key:string] : PType<T>}
+// )
 
-export class PostType<T extends PType<P, P>, P> {
+
+
+export class PostType<T extends Type<P>, P = any> {
     readonly __expected__:T;
     constructor(expected:T){ 
         this.__expected__ = expected; 
@@ -47,15 +51,13 @@ export class PostType<T extends PType<P, P>, P> {
     validate(){
 
     }
-    enforce(){
+    static enforce<T extends Type<P>, P>(expected:T, actual:Infer<Infer<T>>){
 
     }
 }
 
 export namespace PostType {
-    export class Optional {
-        
-    }
+
 }
 
 export type Infer<T> = (
@@ -68,28 +70,6 @@ export type Infer<T> = (
     : T extends {[key:string] : Type<infer P>}
     ? {[K in keyof T] : Infer<T[K]>}
     : T extends PostType<infer P, infer R>
-    ? Infer<P>
+    ? Infer<Infer<P>>
     : T
-)
-
-
-const num = new PostType("number");
-type Num = Infer<typeof num>
-
-const numArr = new PostType(["number", "string"])
-type NumArr = Infer<typeof numArr>
-
-const inst = new PostType(Set);
-type Inst = Infer<typeof inst>
-
-const interf = new PostType({
-    str : "string",
-    num : "number",
-    strNumArr : ["string","number"],
-    subInterf : {
-        str : "string",
-        setArr : [Set]
-    }
-});
-
-type Interface = Infer<typeof interf>
+) 
